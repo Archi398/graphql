@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model absences {
+  id                   Int                @id @default(autoincrement())
+  id_classes_classroom Int?
+  id_users             Int?
+  classes_classroom    classes_classroom? @relation(fields: [id_classes_classroom], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "absences_ibfk_1")
+  users                users?             @relation(fields: [id_users], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "absences_ibfk_2")
+
+  @@index([id_classes_classroom], map: "id_classes_classroom")
+  @@index([id_users], map: "id_users")
+}
+
+model building {
+  id        Int         @id @default(autoincrement())
+  name      String      @db.VarChar(255)
+  adress    String      @db.VarChar(255)
+  classroom classroom[]
+}
+
+model classes {
+  id                Int                 @id @default(autoincrement())
+  name              String              @db.VarChar(255)
+  classes_classroom classes_classroom[]
+  users_classes     users_classes[]
+}
+
+model classes_classroom {
+  id           Int        @id @default(autoincrement())
+  date_min     DateTime   @db.DateTime(0)
+  date_max     DateTime   @db.DateTime(0)
+  id_classes   Int?
+  id_classroom Int?
+  id_teacher   Int?
+  id_subject   Int?
+  absences     absences[]
+  classes      classes?   @relation(fields: [id_classes], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "classes_classroom_ibfk_1")
+  classroom    classroom? @relation(fields: [id_classroom], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "classes_classroom_ibfk_2")
+  users        users?     @relation(fields: [id_teacher], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "classes_classroom_ibfk_3")
+  subject      subject?   @relation(fields: [id_subject], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "classes_classroom_ibfk_4")
+
+  @@index([id_classes], map: "id_classes")
+  @@index([id_classroom], map: "id_classroom")
+  @@index([id_subject], map: "id_subject")
+  @@index([id_teacher], map: "id_teacher")
+}
+
+model classroom {
+  id                Int                 @id @default(autoincrement())
+  name              String              @db.VarChar(255)
+  id_building       Int?
+  classes_classroom classes_classroom[]
+  building          building?           @relation(fields: [id_building], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "classroom_ibfk_1")
+
+  @@index([id_building], map: "id_building")
+}
+
+model marks {
+  id                            Int      @id @default(autoincrement())
+  value                         Float    @db.Float
+  id_subject                    Int?
+  id_student                    Int?
+  id_teacher                    Int?
+  subject                       subject? @relation(fields: [id_subject], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "marks_ibfk_1")
+  users_marks_id_studentTousers users?   @relation("marks_id_studentTousers", fields: [id_student], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "marks_ibfk_2")
+  users_marks_id_teacherTousers users?   @relation("marks_id_teacherTousers", fields: [id_teacher], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "marks_ibfk_3")
+
+  @@index([id_student], map: "id_student")
+  @@index([id_subject], map: "id_subject")
+  @@index([id_teacher], map: "id_teacher")
+}
+
+model role {
+  id    Int     @id @default(autoincrement())
+  name  String  @db.VarChar(50)
+  users users[]
+}
+
+model subject {
+  id                Int                 @id @default(autoincrement())
+  name              String              @db.VarChar(255)
+  classes_classroom classes_classroom[]
+  marks             marks[]
+}
+
+model users {
+  id                            Int                 @id @default(autoincrement())
+  first_name                    String              @db.VarChar(255)
+  last_name                     String              @db.VarChar(255)
+  email                         String              @db.VarChar(255)
+  password                      String              @db.VarChar(255)
+  id_role                       Int?
+  absences                      absences[]
+  classes_classroom             classes_classroom[]
+  marks_marks_id_studentTousers marks[]             @relation("marks_id_studentTousers")
+  marks_marks_id_teacherTousers marks[]             @relation("marks_id_teacherTousers")
+  role                          role?               @relation(fields: [id_role], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "users_ibfk_1")
+  users_classes                 users_classes[]
+
+  @@index([id_role], map: "id_role")
+}
+
+model users_classes {
+  id         Int      @id @default(autoincrement())
+  id_users   Int?
+  id_classes Int?
+  users      users?   @relation(fields: [id_users], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "users_classes_ibfk_1")
+  classes    classes? @relation(fields: [id_classes], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "users_classes_ibfk_2")
+
+  @@index([id_classes], map: "id_classes")
+  @@index([id_users], map: "id_users")
+}
