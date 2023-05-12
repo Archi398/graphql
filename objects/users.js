@@ -27,6 +27,7 @@ const usersMutations = `
 
 const usersQuery = `
   getUsers (id: Int): [users]
+  getUsersBy (column: String, value: String): [users] 
 `
 
 const usersInclude = {
@@ -34,7 +35,7 @@ const usersInclude = {
 };
 
 
-function getAll(){
+function getAll() {
     return prisma.users.findMany({
         include: usersInclude
     })
@@ -53,6 +54,18 @@ const usersFunctions = {
         } else {
             return getAll()
         }
+    },
+
+    getUsersBy: ({ column, value }) => {
+        const v = isNaN(value) ? value : parseInt(value);
+        const obj = Object.fromEntries(new Map([
+            [column, v]
+        ]));
+
+        return prisma.users.findMany({
+            where: obj,
+            include: usersInclude
+        })
     },
 
     insertUsers: async ({ value }) => {

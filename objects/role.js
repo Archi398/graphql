@@ -19,6 +19,7 @@ const roleMutations = `
 
 const roleQuery = `
   getRole (id: Int): [role]
+  getRoleBy (column: String, value: String): [role] 
 `
 
 function getAll() {
@@ -36,6 +37,17 @@ const roleFunctions = {
     } else {
       return getAll()
     }
+  },
+
+  getRoleBy: ({ column, value }) => {
+    const v = isNaN(value) ? value : parseInt(value);
+    const obj = Object.fromEntries(new Map([
+      [column, v]
+    ]));
+
+    return prisma.role.findMany({
+      where: obj
+    })
   },
 
   insertRole: async ({ value }) => {

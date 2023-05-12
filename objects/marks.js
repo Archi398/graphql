@@ -25,6 +25,7 @@ const marksMutations = `
 
 const marksQuery = `
   getMarks (id: Int): [marks]
+  getMarksBy (column: String, value: String): [marks] 
 `
 const marksInclude = {
     subject: true,
@@ -60,6 +61,17 @@ const marksFunctions = {
         } else {
             return getAll()
         }
+    },
+
+    getMarksBy: ({ column, value }) => {
+        const v = isNaN(value) ? value : parseInt(value);
+        const obj = Object.fromEntries(new Map([
+            [column, v]
+        ]));
+
+        return prisma.marks.findMany({
+            where: obj
+        })
     },
 
     insertMarks: async ({ value }) => {

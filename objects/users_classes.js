@@ -21,6 +21,7 @@ const users_classesMutations = `
 
 const users_classesQuery = `
   getUsers_classes (id: Int): [users_classes]
+  getUsers_classesBy (column: String, value: String): [users_classes] 
 `
 const users_classesInclude = {
   users: {
@@ -50,6 +51,18 @@ const users_classesFunctions = {
     } else {
       return getAll()
     }
+  },
+
+  getUsers_classesBy: ({ column, value }) => {
+    const v = isNaN(value) ? value : parseInt(value);
+    const obj = Object.fromEntries(new Map([
+      [column, v]
+    ]));
+
+    return prisma.users_classes.findMany({
+      where: obj,
+      include: users_classesInclude
+    })
   },
 
   insertUsers_classes: async ({ value }) => {

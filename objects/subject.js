@@ -19,6 +19,7 @@ const subjectMutations = `
 
 const subjectQuery = `
   getSubject (id: Int): [subject]
+  getSubjectBy (column: String, value: String): [subject] 
 `
 function getAll() {
   return prisma.subject.findMany()
@@ -35,6 +36,17 @@ const subjectFunctions = {
     } else {
       return getAll()
     }
+  },
+
+  getSubjectBy: ({ column, value }) => {
+    const v = isNaN(value) ? value : parseInt(value);
+    const obj = Object.fromEntries(new Map([
+      [column, v]
+    ]));
+
+    return prisma.subject.findMany({
+      where: obj
+    })
   },
 
   insertSubject: async ({ value }) => {

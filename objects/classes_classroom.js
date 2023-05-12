@@ -32,6 +32,7 @@ const classes_classroomMutations = `
 
 const classes_classroomQuery = `
   getClasses_classroom (id: Int): [classes_classroom]
+  getClasses_classroomBy (column: String, value: String): [classes_classroom] 
 `
 const classes_classroomInclude = {
     classes: true,
@@ -67,6 +68,18 @@ const classes_classroomFunctions = {
         } else {
             return getAll()
         }
+    },
+
+    getClasses_classroomBy: ({ column, value }) => {
+        const v = isNaN(value) ? value : parseInt(value);
+        const obj = Object.fromEntries(new Map([
+            [column, v]
+        ]));
+
+        return prisma.classes_classroom.findMany({
+            where: obj,
+            include: classes_classroomInclude
+        })
     },
 
     insertClasses_classroom: async ({ value }) => {

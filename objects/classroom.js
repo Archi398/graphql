@@ -21,6 +21,7 @@ const classroomMutations = `
 
 const classroomQuery = `
   getClassroom (id: Int): [classroom]
+  getClassroomBy (column: String, value: String): [classroom] 
 `
 const classroomInclude = {
   building: true
@@ -45,6 +46,18 @@ const classroomFunctions = {
     } else {
       return getAll()
     }
+  },
+
+  getClassroomBy: ({ column, value }) => {
+    const v = isNaN(value) ? value : parseInt(value);
+    const obj = Object.fromEntries(new Map([
+      [column, v]
+    ]));
+
+    return prisma.classroom.findMany({
+      where: obj,
+      include: classroomInclude
+    })
   },
 
   insertClassroom: async ({ value }) => {

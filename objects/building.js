@@ -21,6 +21,7 @@ const buildingMutations = `
 
 const buildingQuery = `
   getBuilding (id: Int): [building]
+  getBuildingBy (column: String, value: String): [building] 
 `
 function getAll() {
   return prisma.building.findMany()
@@ -38,6 +39,17 @@ const buildingFunctions = {
     } else {
       return getAll()
     }
+  },
+
+  getBuildingBy: ({ column, value }) => {
+    const v = isNaN(value) ? value : parseInt(value);
+    const obj = Object.fromEntries(new Map([
+      [column, v]
+    ]));
+
+    return prisma.building.findMany({
+      where: obj
+    })
   },
 
   insertBuilding: async ({ value }) => {

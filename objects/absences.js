@@ -21,6 +21,7 @@ const absencesMutations = `
 
 const absencesQuery = `
   getAbsences (id: Int): [absences]
+  getAbsencesBy (column: String, value: String): [absences] 
 `
 const absencesInclude = {
     classes_classroom: {
@@ -53,6 +54,17 @@ const absencesFunctions = {
         } else {
             return getAll()
         }
+    },
+
+    getAbsencesBy: ({ column, value }) => {
+        const v = isNaN(value) ? value : parseInt(value);
+        const obj = Object.fromEntries(new Map([
+            [column, v]
+        ]));
+
+        return prisma.absences.findMany({
+            where: obj
+        })
     },
 
     insertAbsences: async ({ value }) => {
